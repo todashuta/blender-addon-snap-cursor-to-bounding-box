@@ -67,17 +67,3 @@ def menu_func(self, context):
     layout.operator(SnapCursorToBoundingBoxTop.bl_idname,    text="Cursor to Bounding Box Top")
     layout.operator(SnapCursorToBoundingBoxCenter.bl_idname, text="Cursor to Bounding Box Center")
     layout.operator(SnapCursorToBoundingBoxBottom.bl_idname, text="Cursor to Bounding Box Bottom")
-
-
-def register():
-    bpy.utils.register_module(__name__)
-    bpy.types.VIEW3D_MT_snap.append(menu_func)
-
-
-def unregister():
-    bpy.utils.unregister_module(__name__)
-    bpy.types.VIEW3D_MT_snap.remove(menu_func)
-
-
-if __name__ == "__main__":
-    register()
