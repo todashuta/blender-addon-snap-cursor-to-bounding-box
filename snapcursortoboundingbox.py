@@ -22,6 +22,8 @@ def snapCursorToBoudingBox(context, report, *, mode="MIDDLE"):
     elif mode == "BOTTOM":
         context.scene.cursor_location.z = np.min(vertices, axis=0)[2]
 
+    return {"FINISHED"}
+
 
 class SnapCursorToBoundingBoxTop(bpy.types.Operator):
     bl_idname = "view3d.snap_cursor_to_bounding_box_top"
@@ -32,8 +34,7 @@ class SnapCursorToBoundingBoxTop(bpy.types.Operator):
         return True
 
     def execute(self, context):
-        snapCursorToBoudingBox(context, self.report, mode="TOP")
-        return {"FINISHED"}
+        return snapCursorToBoudingBox(context, self.report, mode="TOP")
 
 
 class SnapCursorToBoundingBoxCenter(bpy.types.Operator):
@@ -45,8 +46,7 @@ class SnapCursorToBoundingBoxCenter(bpy.types.Operator):
         return True
 
     def execute(self, context):
-        snapCursorToBoudingBox(context, self.report, mode="MIDDLE")
-        return {"FINISHED"}
+        return snapCursorToBoudingBox(context, self.report, mode="MIDDLE")
 
 
 class SnapCursorToBoundingBoxBottom(bpy.types.Operator):
@@ -58,8 +58,7 @@ class SnapCursorToBoundingBoxBottom(bpy.types.Operator):
         return True
 
     def execute(self, context):
-        snapCursorToBoudingBox(context, self.report, mode="BOTTOM")
-        return {"FINISHED"}
+        return snapCursorToBoudingBox(context, self.report, mode="BOTTOM")
 
 
 def menu_func(self, context):

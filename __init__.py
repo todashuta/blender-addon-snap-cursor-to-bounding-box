@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Snap Cursor to Bounding Box",
     "author": "Toda Shuta",
-    "version": (1, 0, 0),
+    "version": (1, 0, 1),
     "blender": (2, 79, 0),
     "location": "View3D > Shift-S (Snap Menu)",
     "description": "Snap Cursor to Bounding Box (Top, Center, Bottom)",
