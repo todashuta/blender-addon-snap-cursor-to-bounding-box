@@ -7,10 +7,12 @@ def snapCursorToBoudingBox(context, report, *, mode="MIDDLE"):
     selected_objects = context.selected_objects
 
     for ob in selected_objects:
-        if ob.type == "MESH":
-            vertices.extend([ob.matrix_world * v.co for v in ob.data.vertices])
-        else:
-            report({"WARNING"}, "Ignored Unsupported Object: {}".format(ob.name))
+        try:
+            obj_data = ob.to_mesh(context.scene, True, "PREVIEW")
+            vertices.extend([ob.matrix_world * v.co for v in obj_data.vertices])
+            bpy.data.meshes.remove(obj_data)
+        except RuntimeError:
+            report({"WARNING"}, "Unsupported Object: `{}' [{}]".format(ob.name, ob.type))
 
     if len(vertices) == 0:
         return {"CANCELLED"}
@@ -30,10 +32,12 @@ def addBoundingBoxEmptyCube(context, report):
     selected_objects = context.selected_objects
 
     for ob in selected_objects:
-        if ob.type == "MESH":
-            vertices.extend([ob.matrix_world * v.co for v in ob.data.vertices])
-        else:
-            report({"WARNING"}, "Ignored Unsupported Object: {}".format(ob.name))
+        try:
+            obj_data = ob.to_mesh(context.scene, True, "PREVIEW")
+            vertices.extend([ob.matrix_world * v.co for v in obj_data.vertices])
+            bpy.data.meshes.remove(obj_data)
+        except RuntimeError:
+            report({"WARNING"}, "Unsupported Object: `{}' [{}]".format(ob.name, ob.type))
 
     if len(vertices) == 0:
         return {"CANCELLED"}
