@@ -8,9 +8,11 @@ def snapCursorToBoudingBox(context, report, *, mode="MIDDLE"):
 
     for ob in selected_objects:
         try:
-            obj_data = ob.to_mesh()  # TODO
-            vertices.extend([ob.matrix_world @ v.co for v in obj_data.vertices])
-            #bpy.data.meshes.remove(obj_data)  # TODO
+            depsgraph = context.evaluated_depsgraph_get()
+            obj_eval = ob.evaluated_get(depsgraph)
+            mesh_from_eval = obj_eval.to_mesh()
+            vertices.extend([ob.matrix_world @ v.co for v in mesh_from_eval.vertices])
+            obj_eval.to_mesh_clear()
         except RuntimeError:
             report({"WARNING"}, "Unsupported Object: `{}' [{}]".format(ob.name, ob.type))
 
@@ -33,9 +35,11 @@ def addBoundingBoxEmptyCube(context, report):
 
     for ob in selected_objects:
         try:
-            obj_data = ob.to_mesh()  # TODO
-            vertices.extend([ob.matrix_world @ v.co for v in obj_data.vertices])
-            #bpy.data.meshes.remove(obj_data)  # TODO
+            depsgraph = context.evaluated_depsgraph_get()
+            obj_eval = ob.evaluated_get(depsgraph)
+            mesh_from_eval = obj_eval.to_mesh()
+            vertices.extend([ob.matrix_world @ v.co for v in mesh_from_eval.vertices])
+            obj_eval.to_mesh_clear()
         except RuntimeError:
             report({"WARNING"}, "Unsupported Object: `{}' [{}]".format(ob.name, ob.type))
 
