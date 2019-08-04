@@ -8,21 +8,23 @@ def snapCursorToBoudingBox(context, report, *, mode="MIDDLE"):
 
     for ob in selected_objects:
         try:
-            obj_data = ob.to_mesh(context.scene, True, "PREVIEW")
-            vertices.extend([ob.matrix_world * v.co for v in obj_data.vertices])
-            bpy.data.meshes.remove(obj_data)
+            depsgraph = context.evaluated_depsgraph_get()
+            obj_eval = ob.evaluated_get(depsgraph)
+            mesh_from_eval = obj_eval.to_mesh()
+            vertices.extend([ob.matrix_world @ v.co for v in mesh_from_eval.vertices])
+            obj_eval.to_mesh_clear()
         except RuntimeError:
             report({"WARNING"}, "Unsupported Object: `{}' [{}]".format(ob.name, ob.type))
 
     if len(vertices) == 0:
         return {"CANCELLED"}
 
-    context.scene.cursor_location = (np.max(vertices, axis=0) + np.min(vertices, axis=0)) / 2
+    context.scene.cursor.location = (np.max(vertices, axis=0) + np.min(vertices, axis=0)) / 2
 
     if mode == "TOP":
-        context.scene.cursor_location.z = np.max(vertices, axis=0)[2]
+        context.scene.cursor.location.z = np.max(vertices, axis=0)[2]
     elif mode == "BOTTOM":
-        context.scene.cursor_location.z = np.min(vertices, axis=0)[2]
+        context.scene.cursor.location.z = np.min(vertices, axis=0)[2]
 
     return {"FINISHED"}
 
@@ -33,9 +35,11 @@ def addBoundingBoxEmptyCube(context, report):
 
     for ob in selected_objects:
         try:
-            obj_data = ob.to_mesh(context.scene, True, "PREVIEW")
-            vertices.extend([ob.matrix_world * v.co for v in obj_data.vertices])
-            bpy.data.meshes.remove(obj_data)
+            depsgraph = context.evaluated_depsgraph_get()
+            obj_eval = ob.evaluated_get(depsgraph)
+            mesh_from_eval = obj_eval.to_mesh()
+            vertices.extend([ob.matrix_world @ v.co for v in mesh_from_eval.vertices])
+            obj_eval.to_mesh_clear()
         except RuntimeError:
             report({"WARNING"}, "Unsupported Object: `{}' [{}]".format(ob.name, ob.type))
 
@@ -43,9 +47,11 @@ def addBoundingBoxEmptyCube(context, report):
         return {"CANCELLED"}
 
     bbox_empty = bpy.data.objects.new("Bounding Box", None)
-    bpy.context.scene.objects.link(bbox_empty)
-    bbox_empty.empty_draw_size = 1
-    bbox_empty.empty_draw_type = "CUBE"
+    collection = bpy.data.collections.new("Bounding Box Collection")
+    bpy.context.scene.collection.children.link(collection)
+    collection.objects.link(bbox_empty)
+    bbox_empty.empty_display_size = 1
+    bbox_empty.empty_display_type = "CUBE"
     bbox_empty.location = (np.max(vertices, axis=0) + np.min(vertices, axis=0)) / 2
     bbox_empty.scale = (np.max(vertices, axis=0) - np.min(vertices, axis=0)) / 2
 
@@ -67,6 +73,7 @@ class AddBoundingBoxEmptyCube(bpy.types.Operator):
 class SnapCursorToBoundingBoxTop(bpy.types.Operator):
     bl_idname = "view3d.snap_cursor_to_bounding_box_top"
     bl_label = "Snap cursor to the Bounding Box Top of selected item(s)"
+    bl_description = "Snap cursor to the Bounding Box Top of selected item(s)"
 
     @classmethod
     def poll(cls, context):
@@ -79,6 +86,7 @@ class SnapCursorToBoundingBoxTop(bpy.types.Operator):
 class SnapCursorToBoundingBoxCenter(bpy.types.Operator):
     bl_idname = "view3d.snap_cursor_to_bounding_box_center"
     bl_label = "Snap cursor to the Bounding Box Center of selected item(s)"
+    bl_description = "Snap cursor to the Bounding Box Center of selected item(s)"
 
     @classmethod
     def poll(cls, context):
@@ -91,6 +99,7 @@ class SnapCursorToBoundingBoxCenter(bpy.types.Operator):
 class SnapCursorToBoundingBoxBottom(bpy.types.Operator):
     bl_idname = "view3d.snap_cursor_to_bounding_box_bottom"
     bl_label = "Snap cursor to the Bounding Box Bottom of selected item(s)"
+    bl_description = "Snap cursor to the Bounding Box Bottom of selected item(s)"
 
     @classmethod
     def poll(cls, context):
@@ -108,7 +117,31 @@ def snap_menu_func(self, context):
     layout.operator(SnapCursorToBoundingBoxBottom.bl_idname, text="Cursor to Bounding Box Bottom")
 
 
-def special_menu_func(self, context):
+def add_menu_func(self, context):
     layout = self.layout
     layout.separator()
-    layout.operator(AddBoundingBoxEmptyCube.bl_idname, text="Add Bounding Box Empty Cube of selected item(s)")
+    layout.operator(AddBoundingBoxEmptyCube.bl_idname, text="Add Bounding Box Empty Cube of selected item(s)", icon="CUBE")
+
+
+classes = (
+        AddBoundingBoxEmptyCube,
+        SnapCursorToBoundingBoxTop,
+        SnapCursorToBoundingBoxCenter,
+        SnapCursorToBoundingBoxBottom,
+        )
+
+
+def register():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+    bpy.types.VIEW3D_MT_snap.append(snap_menu_func)
+    bpy.types.VIEW3D_MT_add.append(add_menu_func)
+
+
+def unregister():
+    bpy.types.VIEW3D_MT_snap.remove(snap_menu_func)
+    bpy.types.VIEW3D_MT_add.remove(add_menu_func)
+
+    for cls in reversed(classes):
+        bpy.utils.unregister_class(cls)
