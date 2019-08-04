@@ -67,6 +67,7 @@ class AddBoundingBoxEmptyCube(bpy.types.Operator):
 class SnapCursorToBoundingBoxTop(bpy.types.Operator):
     bl_idname = "view3d.snap_cursor_to_bounding_box_top"
     bl_label = "Snap cursor to the Bounding Box Top of selected item(s)"
+    bl_description = "Snap cursor to the Bounding Box Top of selected item(s)"
 
     @classmethod
     def poll(cls, context):
@@ -79,6 +80,7 @@ class SnapCursorToBoundingBoxTop(bpy.types.Operator):
 class SnapCursorToBoundingBoxCenter(bpy.types.Operator):
     bl_idname = "view3d.snap_cursor_to_bounding_box_center"
     bl_label = "Snap cursor to the Bounding Box Center of selected item(s)"
+    bl_description = "Snap cursor to the Bounding Box Center of selected item(s)"
 
     @classmethod
     def poll(cls, context):
@@ -91,6 +93,7 @@ class SnapCursorToBoundingBoxCenter(bpy.types.Operator):
 class SnapCursorToBoundingBoxBottom(bpy.types.Operator):
     bl_idname = "view3d.snap_cursor_to_bounding_box_bottom"
     bl_label = "Snap cursor to the Bounding Box Bottom of selected item(s)"
+    bl_description = "Snap cursor to the Bounding Box Bottom of selected item(s)"
 
     @classmethod
     def poll(cls, context):
