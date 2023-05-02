@@ -2,7 +2,7 @@ import bpy
 import numpy as np
 
 
-def snapCursorToBoudingBox(context, report, *, mode="MIDDLE"):
+def get_selected_objects_vertices(context):
     vertices = []
     selected_objects = context.selected_objects
 
@@ -15,6 +15,12 @@ def snapCursorToBoudingBox(context, report, *, mode="MIDDLE"):
             obj_eval.to_mesh_clear()
         except RuntimeError:
             report({"WARNING"}, "Unsupported Object: `{}' [{}]".format(ob.name, ob.type))
+
+    return vertices
+
+
+def snapCursorToBoudingBox(context, report, *, mode="MIDDLE"):
+    vertices = get_selected_objects_vertices(context)
 
     if len(vertices) == 0:
         return {"CANCELLED"}
@@ -30,25 +36,14 @@ def snapCursorToBoudingBox(context, report, *, mode="MIDDLE"):
 
 
 def addBoundingBoxEmptyCube(context, report):
-    vertices = []
-    selected_objects = context.selected_objects
-
-    for ob in selected_objects:
-        try:
-            depsgraph = context.evaluated_depsgraph_get()
-            obj_eval = ob.evaluated_get(depsgraph)
-            mesh_from_eval = obj_eval.to_mesh()
-            vertices.extend([ob.matrix_world @ v.co for v in mesh_from_eval.vertices])
-            obj_eval.to_mesh_clear()
-        except RuntimeError:
-            report({"WARNING"}, "Unsupported Object: `{}' [{}]".format(ob.name, ob.type))
+    vertices = get_selected_objects_vertices(context)
 
     if len(vertices) == 0:
         return {"CANCELLED"}
 
     bbox_empty = bpy.data.objects.new("Bounding Box", None)
     collection = bpy.data.collections.new("Bounding Box Collection")
-    bpy.context.scene.collection.children.link(collection)
+    context.scene.collection.children.link(collection)
     collection.objects.link(bbox_empty)
     bbox_empty.empty_display_size = 1
     bbox_empty.empty_display_type = "CUBE"
