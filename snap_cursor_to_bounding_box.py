@@ -53,6 +53,20 @@ def addBoundingBoxEmptyCube(context, report):
     return {"FINISHED"}
 
 
+def addBoundingBoxMeshCube(context, report):
+    vertices = get_selected_objects_vertices(context)
+
+    if len(vertices) == 0:
+        return {"CANCELLED"}
+
+    location = (np.max(vertices, axis=0) + np.min(vertices, axis=0)) / 2
+    scale = (np.max(vertices, axis=0) - np.min(vertices, axis=0))
+    bpy.ops.mesh.primitive_cube_add(size=1, location=location, scale=scale)
+    context.active_object.name = "Bounding Box Mesh"
+
+    return {"FINISHED"}
+
+
 class AddBoundingBoxEmptyCube(bpy.types.Operator):
     bl_idname = "view3d.add_bounding_box_empty_cube"
     bl_label = "Add Bounding Box Empty Cube of selected item(s)"
@@ -63,6 +77,18 @@ class AddBoundingBoxEmptyCube(bpy.types.Operator):
 
     def execute(self, context):
         return addBoundingBoxEmptyCube(context, self.report)
+
+
+class AddBoundingBoxMeshCube(bpy.types.Operator):
+    bl_idname = "view3d.add_bounding_box_mesh_cube"
+    bl_label = "Add Bounding Box Mesh Cube of selected item(s)"
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        return addBoundingBoxMeshCube(context, self.report)
 
 
 class SnapCursorToBoundingBoxTop(bpy.types.Operator):
@@ -115,11 +141,14 @@ def snap_menu_func(self, context):
 def add_menu_func(self, context):
     layout = self.layout
     layout.separator()
-    layout.operator(AddBoundingBoxEmptyCube.bl_idname, text="Add Bounding Box Empty Cube of selected item(s)", icon="CUBE")
+    layout.operator(AddBoundingBoxEmptyCube.bl_idname, text="Add Bounding Box Empty Cube of selected item(s)", icon="OUTLINER_OB_EMPTY")
+    layout.operator(AddBoundingBoxMeshCube.bl_idname,  text="Add Bounding Box Mesh Cube of selected item(s)",  icon="OUTLINER_OB_MESH")
 
 
 classes = (
         AddBoundingBoxEmptyCube,
+        AddBoundingBoxMeshCube,
+
         SnapCursorToBoundingBoxTop,
         SnapCursorToBoundingBoxCenter,
         SnapCursorToBoundingBoxBottom,
