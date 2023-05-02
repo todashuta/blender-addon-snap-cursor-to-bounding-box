@@ -1,3 +1,17 @@
+bl_info = {
+    "name": "Snap Cursor to Bounding Box",
+    "author": "Toda Shuta",
+    "version": (1, 4, 1),
+    "blender": (2, 93, 0),
+    "location": "3D Viewport > Object Menu > Snap",
+    "description": "Snap Cursor to Bounding Box (Top, Center, Bottom)",
+    "warning": "",
+    "wiki_url": "",
+    "tracker_url": "",
+    "category": "Object"
+}
+
+
 import bpy
 import numpy as np
 
@@ -169,3 +183,7 @@ def unregister():
 
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
+
+
+if __name__ == "__main__":
+    register()
