@@ -84,6 +84,7 @@ def addBoundingBoxMeshCube(context, report):
 class AddBoundingBoxEmptyCube(bpy.types.Operator):
     bl_idname = "view3d.add_bounding_box_empty_cube"
     bl_label = "Add Bounding Box Empty Cube of selected item(s)"
+    bl_options = {"UNDO"}
 
     @classmethod
     def poll(cls, context):
@@ -96,6 +97,7 @@ class AddBoundingBoxEmptyCube(bpy.types.Operator):
 class AddBoundingBoxMeshCube(bpy.types.Operator):
     bl_idname = "view3d.add_bounding_box_mesh_cube"
     bl_label = "Add Bounding Box Mesh Cube of selected item(s)"
+    bl_options = {"UNDO"}
 
     @classmethod
     def poll(cls, context):
