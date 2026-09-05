@@ -2,7 +2,7 @@ bl_info = {
     "name": "Snap Cursor to Bounding Box",
     "author": "Toda Shuta",
     "version": (1, 4, 2),
-    "blender": (2, 93, 0),
+    "blender": (4, 5, 0),
     "location": "3D Viewport > Object Menu > Snap",
     "description": "Snap Cursor to Bounding Box (Top, Center, Bottom)",
     "warning": "",
@@ -13,12 +13,13 @@ bl_info = {
 
 
 import bpy
+from mathutils import Vector
 import numpy as np
 
 
-def get_selected_objects_vertices(context, report):
+def get_selected_objects_vertices(context: bpy.types.Context, report) -> list[Vector]:
     vertices = []
-    selected_objects = context.selected_objects
+    selected_objects: list[bpy.types.Object] = context.selected_objects
 
     for ob in selected_objects:
         try:
@@ -33,23 +34,23 @@ def get_selected_objects_vertices(context, report):
     return vertices
 
 
-def snapCursorToBoudingBox(context, report, *, mode="MIDDLE"):
+def snapCursorToBoudingBox(context: bpy.types.Context, report, *, mode="MIDDLE"):
     vertices = get_selected_objects_vertices(context, report)
 
     if len(vertices) == 0:
         return {"CANCELLED"}
 
-    context.scene.cursor.location = (np.max(vertices, axis=0) + np.min(vertices, axis=0)) / 2
+    context.scene.cursor.location = (np.max(vertices, axis=0) + np.min(vertices, axis=0)) / 2 # type: ignore
 
     if mode == "TOP":
-        context.scene.cursor.location.z = np.max(vertices, axis=0)[2]
+        context.scene.cursor.location.z = np.max(vertices, axis=0)[2] # type: ignore
     elif mode == "BOTTOM":
-        context.scene.cursor.location.z = np.min(vertices, axis=0)[2]
+        context.scene.cursor.location.z = np.min(vertices, axis=0)[2] # type: ignore
 
     return {"FINISHED"}
 
 
-def addBoundingBoxEmptyCube(context, report):
+def addBoundingBoxEmptyCube(context: bpy.types.Context, report):
     vertices = get_selected_objects_vertices(context, report)
 
     if len(vertices) == 0:
@@ -57,26 +58,27 @@ def addBoundingBoxEmptyCube(context, report):
 
     bbox_empty = bpy.data.objects.new("Bounding Box", None)
     collection = bpy.data.collections.new("Bounding Box Collection")
-    context.scene.collection.children.link(collection)
+    context.scene.collection.children.link(collection) # type: ignore
     collection.objects.link(bbox_empty)
     bbox_empty.empty_display_size = 1
     bbox_empty.empty_display_type = "CUBE"
-    bbox_empty.location = (np.max(vertices, axis=0) + np.min(vertices, axis=0)) / 2
-    bbox_empty.scale = (np.max(vertices, axis=0) - np.min(vertices, axis=0)) / 2
+    bbox_empty.location = (np.max(vertices, axis=0) + np.min(vertices, axis=0)) / 2 # type: ignore
+    bbox_empty.scale = (np.max(vertices, axis=0) - np.min(vertices, axis=0)) / 2 # type: ignore
 
     return {"FINISHED"}
 
 
-def addBoundingBoxMeshCube(context, report):
+def addBoundingBoxMeshCube(context: bpy.types.Context, report):
     vertices = get_selected_objects_vertices(context, report)
 
     if len(vertices) == 0:
         return {"CANCELLED"}
 
-    location = (np.max(vertices, axis=0) + np.min(vertices, axis=0)) / 2
-    scale = (np.max(vertices, axis=0) - np.min(vertices, axis=0))
+    location = (np.max(vertices, axis=0) + np.min(vertices, axis=0)) / 2 # type: ignore
+    scale = (np.max(vertices, axis=0) - np.min(vertices, axis=0)) # type: ignore
     bpy.ops.mesh.primitive_cube_add(size=1, location=location, scale=scale)
-    context.active_object.name = "Bounding Box Mesh"
+    active_object: bpy.types.Object = context.active_object # type: ignore
+    active_object.name = "Bounding Box Mesh"
 
     return {"FINISHED"}
 
@@ -90,7 +92,7 @@ class AddBoundingBoxEmptyCube(bpy.types.Operator):
     def poll(cls, context):
         return True
 
-    def execute(self, context):
+    def execute(self, context: bpy.types.Context):
         return addBoundingBoxEmptyCube(context, self.report)
 
 
@@ -103,7 +105,7 @@ class AddBoundingBoxMeshCube(bpy.types.Operator):
     def poll(cls, context):
         return True
 
-    def execute(self, context):
+    def execute(self, context: bpy.types.Context):
         return addBoundingBoxMeshCube(context, self.report)
 
 
@@ -116,7 +118,7 @@ class SnapCursorToBoundingBoxTop(bpy.types.Operator):
     def poll(cls, context):
         return True
 
-    def execute(self, context):
+    def execute(self, context: bpy.types.Context):
         return snapCursorToBoudingBox(context, self.report, mode="TOP")
 
 
@@ -129,7 +131,7 @@ class SnapCursorToBoundingBoxCenter(bpy.types.Operator):
     def poll(cls, context):
         return True
 
-    def execute(self, context):
+    def execute(self, context: bpy.types.Context):
         return snapCursorToBoudingBox(context, self.report, mode="MIDDLE")
 
 
@@ -142,12 +144,12 @@ class SnapCursorToBoundingBoxBottom(bpy.types.Operator):
     def poll(cls, context):
         return True
 
-    def execute(self, context):
+    def execute(self, context: bpy.types.Context):
         return snapCursorToBoudingBox(context, self.report, mode="BOTTOM")
 
 
 def snap_menu_func(self, context):
-    layout = self.layout
+    layout: bpy.types.UILayout = self.layout
     layout.separator()
     layout.operator(SnapCursorToBoundingBoxTop.bl_idname,    text="Cursor to Bounding Box Top")
     layout.operator(SnapCursorToBoundingBoxCenter.bl_idname, text="Cursor to Bounding Box Center")
@@ -155,7 +157,7 @@ def snap_menu_func(self, context):
 
 
 def add_menu_func(self, context):
-    layout = self.layout
+    layout: bpy.types.UILayout = self.layout
     layout.separator()
     layout.operator(AddBoundingBoxEmptyCube.bl_idname, text="Add Bounding Box Empty Cube of selected item(s)", icon="OUTLINER_OB_EMPTY")
     layout.operator(AddBoundingBoxMeshCube.bl_idname,  text="Add Bounding Box Mesh Cube of selected item(s)",  icon="OUTLINER_OB_MESH")
