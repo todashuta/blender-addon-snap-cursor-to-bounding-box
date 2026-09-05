@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Snap Cursor to Bounding Box",
     "author": "Toda Shuta",
-    "version": (1, 4, 1),
+    "version": (1, 4, 2),
     "blender": (2, 93, 0),
     "location": "3D Viewport > Object Menu > Snap",
     "description": "Snap Cursor to Bounding Box (Top, Center, Bottom)",
@@ -16,7 +16,7 @@ import bpy
 import numpy as np
 
 
-def get_selected_objects_vertices(context):
+def get_selected_objects_vertices(context, report):
     vertices = []
     selected_objects = context.selected_objects
 
@@ -34,7 +34,7 @@ def get_selected_objects_vertices(context):
 
 
 def snapCursorToBoudingBox(context, report, *, mode="MIDDLE"):
-    vertices = get_selected_objects_vertices(context)
+    vertices = get_selected_objects_vertices(context, report)
 
     if len(vertices) == 0:
         return {"CANCELLED"}
@@ -50,7 +50,7 @@ def snapCursorToBoudingBox(context, report, *, mode="MIDDLE"):
 
 
 def addBoundingBoxEmptyCube(context, report):
-    vertices = get_selected_objects_vertices(context)
+    vertices = get_selected_objects_vertices(context, report)
 
     if len(vertices) == 0:
         return {"CANCELLED"}
@@ -68,7 +68,7 @@ def addBoundingBoxEmptyCube(context, report):
 
 
 def addBoundingBoxMeshCube(context, report):
-    vertices = get_selected_objects_vertices(context)
+    vertices = get_selected_objects_vertices(context, report)
 
     if len(vertices) == 0:
         return {"CANCELLED"}
