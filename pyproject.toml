@@ -1,0 +1,13 @@
+[project]
+name = "blender-addon-snap-cursor-to-bounding-box"
+version = "0.0.0" # please see bl_info
+requires-python = ">=3.11.11"
+dependencies = [
+	"fake-bpy-module-4.5",
+	"numpy==1.26.4",
+	"ty",
+]
+
+#[build-system]
+#requires = ["uv_build>=0.12.10,<0.13.0"]
+#build-backend = "uv_build"
