@@ -6,6 +6,7 @@ dependencies = [
 	"fake-bpy-module-4.5",
 	"numpy==1.26.4",
 	"ty",
+	"ruff",
 ]
 
 #[build-system]
